@@ -5,7 +5,7 @@ match info
 
 """
 #####################################
-#    LAST UPDATED     25 FEB 2017   #
+#    LAST UPDATED     17 MAR 2017   #
 #####################################
 import httplib2
 import os
@@ -170,11 +170,13 @@ def create_event(google: discovery.build, match_bundle: list) -> None:
         'location': '{}'.format(venue),
         'description': 'TV: {}\nAtlanta United {} {} ({})'.format(watch, filler, opponent, competition),
         'start': {
-            'dateTime': '{0:%Y-%m-%dT%H:%M:00-05:00}'.format(time),
+            # 'dateTime': '{0:%Y-%m-%dT%H:%M:00-04:00}'.format(time),
+            'dateTime': '{0:%Y-%m-%dT%H:%M:00}'.format(time),
             'timeZone': 'America/New_York',
         },
         'end': {
-            'dateTime': '{0:%Y-%m-%dT%H:%M:00-05:00}'.format(time + datetime.timedelta(hours=2)),
+            # 'dateTime': '{0:%Y-%m-%dT%H:%M:00-04:00}'.format(time + datetime.timedelta(hours=2)),
+            'dateTime': '{0:%Y-%m-%dT%H:%M:00}'.format(time + datetime.timedelta(hours=2)),
             'timeZone': 'America/New_York',
         },
         'recurrence': [],
@@ -285,7 +287,11 @@ def main() -> None:
     for event in events:
         event_bundle.append(event['id'])
 
-    update_events(service, event_bundle, matches)
+    for event in event_bundle:
+        service.events().delete(calendarId='3cdkhu8tso8o1i3vlv3fqa4oqk@group.calendar.google.com',
+                                eventId=event).execute()
+
+    write_all_matches(service, matches)
 
 
 if __name__ == '__main__':

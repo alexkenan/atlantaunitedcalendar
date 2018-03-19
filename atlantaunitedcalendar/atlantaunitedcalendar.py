@@ -5,7 +5,7 @@ match info
 
 """
 #####################################
-#    LAST UPDATED     17 MAR 2017   #
+#    LAST UPDATED     18 MAR 2017   #
 #####################################
 import httplib2
 import os
@@ -170,12 +170,10 @@ def create_event(google: discovery.build, match_bundle: list) -> None:
         'location': '{}'.format(venue),
         'description': 'TV: {}\nAtlanta United {} {} ({})'.format(watch, filler, opponent, competition),
         'start': {
-            # 'dateTime': '{0:%Y-%m-%dT%H:%M:00-04:00}'.format(time),
             'dateTime': '{0:%Y-%m-%dT%H:%M:00}'.format(time),
             'timeZone': 'America/New_York',
         },
         'end': {
-            # 'dateTime': '{0:%Y-%m-%dT%H:%M:00-04:00}'.format(time + datetime.timedelta(hours=2)),
             'dateTime': '{0:%Y-%m-%dT%H:%M:00}'.format(time + datetime.timedelta(hours=2)),
             'timeZone': 'America/New_York',
         },
@@ -196,45 +194,40 @@ def update_events(google: discovery.build, event_list: list, match_bundle: list)
     :return: None
     """
     calendar_id = '3cdkhu8tso8o1i3vlv3fqa4oqk@group.calendar.google.com'
-    # if len(event_list) != len(match_bundle):
-    if False:
-        # At least one match needs to be added
-        pass
-    else:
-        for index, event in enumerate(event_list):
-            opponent = match_bundle[index][0]
-            venue = match_bundle[index][1]
-            time = match_bundle[index][2]
-            watch = match_bundle[index][3]
-            competition = match_bundle[index][4]
+    for index, event in enumerate(event_list):
+        opponent = match_bundle[index][0]
+        venue = match_bundle[index][1]
+        time = match_bundle[index][2]
+        watch = match_bundle[index][3]
+        competition = match_bundle[index][4]
 
-            if venue == 'MERCEDES-BENZ STADIUM':
-                filler = 'vs'
-            else:
-                filler = 'at'
+        if venue == 'MERCEDES-BENZ STADIUM':
+            filler = 'vs'
+        else:
+            filler = 'at'
 
-            old_event = google.events().get(calendarId=calendar_id, eventId=event).execute()
-            old_event_summary = old_event['summary']
-            old_event_location = old_event['location']
-            old_event_description = old_event['description']
-            old_event_start_time = old_event['start'].get('dateTime', old_event['start'].get('date'))
+        old_event = google.events().get(calendarId=calendar_id, eventId=event).execute()
+        old_event_summary = old_event['summary']
+        old_event_location = old_event['location']
+        old_event_description = old_event['description']
+        old_event_start_time = old_event['start'].get('dateTime', old_event['start'].get('date'))
 
-            bundle_event_summary = 'Atlanta United {} {} ({})'.format(filler, opponent, competition)
-            bundle_event_location = '{}'.format(venue)
-            bundle_event_description = 'TV: {}\nAtlanta United {} {} ({})'.format(watch, filler, opponent, competition)
-            bundle_event_start_time = '{0:%Y-%m-%dT%H:%M:00-05:00}'.format(time)
+        bundle_event_summary = 'Atlanta United {} {} ({})'.format(filler, opponent, competition)
+        bundle_event_location = '{}'.format(venue)
+        bundle_event_description = 'TV: {}\nAtlanta United {} {} ({})'.format(watch, filler, opponent, competition)
+        bundle_event_start_time = '{0:%Y-%m-%dT%H:%M:00-05:00}'.format(time)
 
-            if old_event_start_time != bundle_event_start_time:
-                update_individual_event(google, event, 'start.dateTime', bundle_event_start_time)
+        if old_event_start_time != bundle_event_start_time:
+            update_individual_event(google, event, 'start.dateTime', bundle_event_start_time)
 
-            if old_event_summary != bundle_event_summary:
-                update_individual_event(google, event, 'summary', bundle_event_summary)
+        if old_event_summary != bundle_event_summary:
+            update_individual_event(google, event, 'summary', bundle_event_summary)
 
-            if old_event_location != bundle_event_location:
-                update_individual_event(google, event, 'location', bundle_event_location)
+        if old_event_location != bundle_event_location:
+            update_individual_event(google, event, 'location', bundle_event_location)
 
-            if old_event_description != bundle_event_description:
-                update_individual_event(google, event, 'description', bundle_event_description)
+        if old_event_description != bundle_event_description:
+            update_individual_event(google, event, 'description', bundle_event_description)
 
 
 def update_individual_event(google: discovery.build, event_id: str, parameter: str, new_text: str) -> None:
@@ -267,6 +260,8 @@ def write_all_matches(google: discovery.build, match_list: list) -> None:
     """
     for match in match_list:
         create_event(google, match)
+        if debug:
+            print('Creating {}'.format(match))
 
 
 def main() -> None:
@@ -295,5 +290,5 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    debug = True
+    debug = False
     main()
